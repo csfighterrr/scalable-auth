@@ -106,6 +106,3 @@ npm run dev
 ## License
 
 MIT
-# scalable-auth
-# scalable-auth
-# scalable-auth
