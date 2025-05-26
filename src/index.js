@@ -44,3 +44,5 @@ app.listen(port, () => {
   logger.info(`Auth service running on port ${port}`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+module.exports = app;
