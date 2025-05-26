@@ -84,21 +84,239 @@ CREATE POLICY "Auth service can create profiles"
 npm run dev
 ```
 
-## API Endpoints
+## API Documentation
 
-### Authentication
+Base URL: `http://localhost:3000`
 
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/password-reset/request` - Request password reset
-- `POST /api/auth/password-reset` - Reset password with token
+### Authentication Endpoints
 
-### User Profile
+#### 1. Register a New User
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "your_password",
+    "name": "John Doe"
+  }'
+```
+Response (201):
+```json
+{
+  "message": "User registered successfully. Please check your email for verification.",
+  "userId": "user_id"
+}
+```
 
-- `GET /api/users/profile` - Get current user's profile
-- `GET /api/users/profile/:userId` - Get a user's profile by ID
+#### 2. Login
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "your_password"
+  }'
+```
+Response (200):
+```json
+{
+  "message": "Login successful",
+  "token": "jwt_token",
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "John Doe"
+  }
+}
+```
+
+#### 3. Logout
+```bash
+curl -X POST http://localhost:3000/api/auth/logout
+```
+Response (200):
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+#### 4. Get Current User
+```bash
+curl -X GET http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+Response (200):
+```json
+{
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "John Doe"
+  }
+}
+```
+
+#### 5. Request Password Reset
+```bash
+curl -X POST http://localhost:3000/api/auth/password-reset/request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+Response (200):
+```json
+{
+  "message": "Password reset email sent. Please check your email."
+}
+```
+
+#### 6. Reset Password
+```bash
+curl -X POST http://localhost:3000/api/auth/password-reset \
+  -H "Content-Type: application/json" \
+  -d '{
+    "newPassword": "new_password"
+  }'
+```
+Response (200):
+```json
+{
+  "message": "Password reset successful"
+}
+```
+
+### User Profile Endpoints
+
+#### 1. Get Current User's Profile
+```bash
+curl -X GET http://localhost:3000/api/users/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+Response (200):
+```json
+{
+  "profile": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "bio": "",
+    "avatar_url": "",
+    "phone": "",
+    "address": ""
+  }
+}
+```
+
+#### 2. Get User Profile by ID
+```bash
+curl -X GET http://localhost:3000/api/users/profile/USER_ID \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+Response (200):
+```json
+{
+  "profile": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "bio": "",
+    "avatar_url": "",
+    "phone": "",
+    "address": ""
+  }
+}
+```
+
+#### 3. Update User Profile
+```bash
+curl -X PUT http://localhost:3000/api/users/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Smith",
+    "bio": "Software Developer",
+    "phone": "+1234567890",
+    "address": "123 Main St"
+  }'
+```
+Response (200):
+```json
+{
+  "message": "Profile updated successfully",
+  "profile": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "name": "John Smith",
+    "bio": "Software Developer",
+    "avatar_url": "",
+    "phone": "+1234567890",
+    "address": "123 Main St"
+  }
+}
+```
+
+#### 4. Upload Profile Picture
+```bash
+curl -X POST http://localhost:3000/api/users/profile/upload-picture \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image": {
+      "base64String": "BASE64_ENCODED_IMAGE",
+      "filename": "profile.jpg",
+      "contentType": "image/jpeg"
+    }
+  }'
+```
+Response (200):
+```json
+{
+  "avatar_url": "http://storage-url/profile-picture.jpg"
+}
+```
+
+#### 5. Delete User Profile
+```bash
+curl -X DELETE http://localhost:3000/api/users/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+Response (200):
+```json
+{
+  "message": "User deleted successfully"
+}
+```
+
+### Health Check Endpoint
+
+#### Check Service Health
+```bash
+curl -X GET http://localhost:3000/health
+```
+Response (200):
+```json
+{
+  "status": "ok",
+  "service": "auth-service"
+}
+```
+
+### Important Notes
+
+1. All requests except registration, login, and health check require a valid JWT token in the Authorization header.
+2. The token format should be: `Bearer YOUR_JWT_TOKEN`
+3. For profile picture upload, the image should be base64 encoded and must not exceed the size limit (10MB).
+4. All responses include appropriate HTTP status codes:
+   - 200: Success
+   - 201: Created
+   - 400: Bad Request
+   - 401: Unauthorized
+   - 403: Forbidden
+   - 404: Not Found
+   - 409: Conflict (e.g., email already exists)
+   - 500: Internal Server Error
 - `PUT /api/users/profile` - Update current user's profile
 - `DELETE /api/users/profile` - Delete current user's account
 - `POST /api/users/profile/upload-picture` - Upload profile picture
