@@ -37,17 +37,36 @@ export async function login(req: Request, res: Response): Promise<void> {
     const data = await authService.loginUser(email, password);
     const userData = await userService.findUserById(data.user.id);
 
-    const token = authService.generateToken({ id: data.user.id, email: data.user.email });
+    // create tokens
+    const payload = { userId: data.user.id, email: data.user.email };
+    const token = authService.generateToken(payload);
+    const refreshToken = authService.generateRefreshToken(payload);
 
     res.status(200).json({
       message: 'Login successful',
       token,
+      refreshToken,
       user: {
         id: userData.id,
         email: userData.email,
         name: userData.name,
       },
     });
+  } catch (err) {
+    handleError(res, err);
+  }
+}
+
+// Refresh access token
+export async function refreshToken(req: Request, res: Response): Promise<void> {
+  try {
+    const { refreshToken } = req.body;
+    // verify refresh token
+    const payload = authService.verifyRefreshToken(refreshToken);
+    // issue new tokens
+    const token = authService.generateToken({ userId: payload.userId, email: payload.email });
+    const newRefreshToken = authService.generateRefreshToken({ userId: payload.userId, email: payload.email });
+    res.status(200).json({ token, refreshToken: newRefreshToken });
   } catch (err) {
     handleError(res, err);
   }

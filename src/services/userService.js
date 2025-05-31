@@ -2,6 +2,7 @@
  * User service for managing user data with Supabase
  */
 const supabase = require('../config/supabase');
+const supabaseService = require('../config/supabaseService');
 
 /**
  * Find a user by their ID
@@ -47,7 +48,8 @@ exports.findUserByEmail = async (email) => {
  * @returns {Promise<Object>} - Created user
  */
 exports.createUserProfile = async (userData) => {
-  const { data, error } = await supabase
+  // Use service client to bypass RLS for user creation during registration
+  const { data, error } = await supabaseService
     .from('users')
     .insert([userData])
     .select()

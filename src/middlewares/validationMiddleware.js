@@ -150,3 +150,49 @@ exports.validatePasswordReset = (req, res, next) => {
 
   next();
 };
+
+/**
+ * Middleware to validate email verification
+ */
+exports.validateEmailVerification = (req, res, next) => {
+  const { token, type } = req.body;
+
+  if (!token) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: ['Verification token is required']
+    });
+  }
+
+  if (type && !['signup', 'recovery', 'email_change'].includes(type)) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: ['Invalid verification type']
+    });
+  }
+
+  next();
+};
+
+/**
+ * Middleware to validate resend verification email request
+ */
+exports.validateResendVerificationEmail = (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: ['Email is required']
+    });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: ['Email must be valid']
+    });
+  }
+
+  next();
+};

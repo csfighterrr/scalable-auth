@@ -28,8 +28,8 @@ npm install
 ```
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_API_KEY=your_supabase_api_key
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRES_IN=24h
+JWT_SECRET=your_jwt_secret_key           # used for access tokens (expires in 1h)
+JWT_REFRESH_SECRET=your_jwt_refresh_key  # used for refresh tokens (expires in 3d)
 PORT=3000
 ```
 
@@ -122,6 +122,7 @@ Response (200):
 {
   "message": "Login successful",
   "token": "jwt_token",
+  "refreshToken": "refresh_token",
   "user": {
     "id": "user_id",
     "email": "user@example.com",
@@ -130,7 +131,23 @@ Response (200):
 }
 ```
 
-#### 3. Logout
+#### 3. Refresh Token
+```bash
+curl -X POST http://localhost:3000/api/auth/refresh-token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "your_refresh_token"
+  }'
+```
+Response (200):
+```json
+{
+  "token": "new_jwt_token",
+  "refreshToken": "new_refresh_token"
+}
+```
+
+#### 4. Logout
 ```bash
 curl -X POST http://localhost:3000/api/auth/logout
 ```
@@ -141,7 +158,7 @@ Response (200):
 }
 ```
 
-#### 4. Get Current User
+#### 5. Get Current User
 ```bash
 curl -X GET http://localhost:3000/api/auth/me \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -157,7 +174,7 @@ Response (200):
 }
 ```
 
-#### 5. Request Password Reset
+#### 6. Request Password Reset
 ```bash
 curl -X POST http://localhost:3000/api/auth/password-reset/request \
   -H "Content-Type: application/json" \
@@ -172,7 +189,7 @@ Response (200):
 }
 ```
 
-#### 6. Reset Password
+#### 7. Reset Password
 ```bash
 curl -X POST http://localhost:3000/api/auth/password-reset \
   -H "Content-Type: application/json" \

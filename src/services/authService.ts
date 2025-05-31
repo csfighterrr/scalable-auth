@@ -42,11 +42,23 @@ export async function updatePassword(newPassword: string) {
 
 export function generateToken(user: UserTokenPayload): string {
   const secret = process.env.JWT_SECRET as string;
-  const expiresIn = process.env.JWT_EXPIRES_IN;
-  return jwt.sign({ userId: user.userId, email: user.email }, secret, { expiresIn });
+  // access tokens expire in 1 hour
+  return jwt.sign({ userId: user.userId, email: user.email }, secret, { expiresIn: '1h' });
+}
+
+// generate refresh token with 3 days expiry
+export function generateRefreshToken(user: UserTokenPayload): string {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET as string;
+  return jwt.sign({ userId: user.userId, email: user.email }, refreshSecret, { expiresIn: '3d' });
 }
 
 export function verifyToken(token: string): UserTokenPayload {
   const secret = process.env.JWT_SECRET as string;
   return jwt.verify(token, secret) as UserTokenPayload;
+}
+
+// verify refresh token
+export function verifyRefreshToken(token: string): UserTokenPayload {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET as string;
+  return jwt.verify(token, refreshSecret) as UserTokenPayload;
 }
